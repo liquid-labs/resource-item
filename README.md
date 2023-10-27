@@ -50,10 +50,10 @@ The `Item` class is conceived of as the standard basis for a CRUD system dealing
 constructor/`new` `Item`s:\
 `Item`s cannot be instantiated directly and must be sub-classed. Instantiating the subclass will result in the return of a `Proxy` object that wraps the underlying class. The proxy instance behaves just as the underlying class would in all cases except as noted in this documentation.
 
-All 'get' operations:\
+All '___get___' operations:\
 Can access properties defined directly on the object and also properties in the plain data object used to initialize the class. Propertise defined directly on the object will override/hide properties of the same name in the data object. Any 'object' values are cloned to protect the underlying data from inadvertent change.
 
-All 'set' operations:\
+All '___set___' operations:\
 Can only set properties directly defined on the object at instantiation or properties in the data object which have been configured writeble by `allowSet` in the [`Item.bindCreationConfig()`](#item-bindcreationconfig) configuration. You cannot add to or set properties on the underlying object that were not present at instaantiation. Object values are cloned so subsequent changes in the (now) external data will not affect the stored data.
 
 <span id="item-bindcreationconfig">`Item.bindCreationConfig(config)`</span>:\
