@@ -1,4 +1,5 @@
 # resource-item
+[![coverage: 91%](./.readme-assets/coverage.svg)](https://github.com/liquid-labs/resource-item/pulls?q=is%3Apr+is%3Aclosed) [![Unit tests](https://github.com/liquid-labs/resource-item/actions/workflows/unit-tests-node.yaml/badge.svg)](https://github.com/liquid-labs/resource-item/actions/workflows/unit-tests-node.yaml)
 
 Provides configurable 'Item' class to wrap plain data object for data protection and sanitization. This is useful when you have a bunch of plain data objects and you don't want to write specific classes for each type, but you do want to protect and/or sanitize the data.
 
