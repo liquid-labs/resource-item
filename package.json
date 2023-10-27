@@ -2,7 +2,7 @@
   "name": "@liquid-labs/resource-item",
   "version": "1.0.0-alpha.2",
   "description": "Provides configurable 'Item' class to wrap plain data object for data protection and sanitization.",
-  "main": "dist/@liquid-labs/resource-item.js",
+  "main": "dist/resource-item.js",
   "scripts": {
     "build": "make",
     "lint": "make lint",
