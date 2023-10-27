@@ -211,8 +211,8 @@ describe('Item', () => {
       itemName  : 'watched',
       itemsName : 'watched',
       keyField  : 'id',
-      getWatchers: [({ key }) => {
-        if (key === 'foo') {
+      getWatchers: [({ property }) => {
+        if (property === 'foo') {
           throw new Error('Access denied')
         }
         accessCount += 1
@@ -246,11 +246,11 @@ describe('Item', () => {
       itemName  : 'watched',
       itemsName : 'watched',
       keyField  : 'id',
-      setWatchers: [({ data, object, key, value }) => {
+      setWatchers: [({ data, object, property, value }) => {
         if (value === 'forbidden') {
           throw new Error('It is forbidden')
         }
-        const currValue = data[key]
+        const currValue = data[property]
         if (currValue !== value) {
           updateCount += 1
         }

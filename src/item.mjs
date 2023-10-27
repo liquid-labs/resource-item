@@ -94,19 +94,19 @@ const indexAllProperties = (obj) => {
 }
 
 const handler = ({ allowSet, data, getWatchers, propIndex, methodIndex, setWatchers }) => ({
-  get : (object, key, receiver) => {
+  get : (target, property, receiver) => {
     for (const getWatcher of getWatchers) {
-      getWatcher({ data, object, key, receiver })
+      getWatcher({ data, target, property, receiver })
     }
 
-    if (key === 'isProxy') return true
+    if (property === 'isProxy') return true
     // object method calls go through the get handler first to retrieve the function itself
     // TODO: the 'private' thing is a workaround for a Babel bug (?) that messes up private calls **I wonder if the
     // new catalyst-scripts-node-project fixes this? Since we don't bother to target ancient platforms
-    else if (methodIndex[key] || propIndex[key] || key.match?.(/private/)) {
+    else if (methodIndex[property] || propIndex[property] || property.match?.(/private/)) {
       return receiver
-        ? Reflect.get(object, key, receiver)
-        : Reflect.get(object, key)
+        ? Reflect.get(target, property, receiver)
+        : Reflect.get(target, property)
       /* At one point this code was necessary. perhpas of the way Babel was transpiling the code. It seems to work 
          without needing this bit now, though. We preserve it in case the bug popss up again
 
@@ -117,9 +117,9 @@ const handler = ({ allowSet, data, getWatchers, propIndex, methodIndex, setWatch
         if (e instanceof TypeError) { // assume private field access error
           /* Needs further testing, but I believe trying to use the reciever was causing 'TypeErrors'.
           return receiver
-            ? Reflect.get(thisMapper[object].deref(), key, receiver)
-            : Reflect.get(thisMapper[object].deref(), key) * /
-          return Reflect.get(thisMapper[object], key)
+            ? Reflect.get(thisMapper[target].deref(), property, receiver)
+            : Reflect.get(thisMapper[target].deref(), property) * /
+          return Reflect.get(thisMapper[target], property) // I think the missing '.deref()' is an error
         }
         else {
           throw e
@@ -127,46 +127,46 @@ const handler = ({ allowSet, data, getWatchers, propIndex, methodIndex, setWatch
       }*/
     }
     else {
-      const value = data[key]
+      const value = data[property]
       return value && typeof value === 'object'
         ? structuredClone(value)
         : value
     }
   },
-  set : (object, key, value) => {
+  set : (target, property, value, receiver) => {
     for (const setWatcher of setWatchers) {
-      setWatcher({ data, object, key, value })
+      setWatcher({ data, target, property, value, receiver })
     }
 
-    // propIndex of object (not data) are allowed to be set
-    if (propIndex[key] || key.match(/private/)) {
-      object[key] = value
+    // propIndex of target object (not data) are allowed to be set
+    if (propIndex[property] || property.match(/private/)) {
+      target[property] = value
       return true
     }
-    else if (allowSet && allowSet.indexOf(key) !== -1) {
+    else if (allowSet && allowSet.indexOf(property) !== -1) {
       const setValue = value && typeof value === 'object'
         ? structuredClone(value)
         : value
-      return Reflect.set(data, key, setValue)
+      return Reflect.set(data, property, setValue)
     }
     /* TODO: suppport 'setXXX' style?
-    else if (methodIndex[`set${key.ucfirst()`]) {
-      object[key] = value
+    else if (methodIndex[`set${property.ucfirst()`]) {
+      target[property] = value
     } */
-    else throw new Error(`Setting '${key}' is not supported.`)
+    else throw new Error(`Setting '${property}' is not supported.`)
   },
   ownKeys : (target) => {
     return Reflect.ownKeys(target).concat(Reflect.ownKeys(data))
   },
-  has : (target, key) => {
-    return (key in target) || (key in data)
+  has : (target, property) => {
+    return (property in target) || (property in data)
   },
-  getOwnPropertyDescriptor : (target, key) => {
+  getOwnPropertyDescriptor : (target, property) => {
     // TODO: really, theh property as percieved by the user is not configurable; but if we set that false, the proxy complains that it doesn't match the underlying data property...
-    return Object.getOwnPropertyDescriptor(target, key)
-      || Object.getOwnPropertyDescriptor(data, key)
-      // TODO: we want to do something like below, because it's not true that the data keys are writable, in general, but '@fast-csv/format' was running into errors
-      // || Object.assign(Object.getOwnPropertyDescriptor(data, key), { writable : false, configurable : true })
+    return Object.getOwnPropertyDescriptor(target, property)
+      || Object.getOwnPropertyDescriptor(data, property)
+      // TODO: we want to do something like below, because it's not true that the data propertys are writable, in general, but '@fast-csv/format' was running into errors
+      // || Object.assign(Object.getOwnPropertyDescriptor(data, property), { writable : false, configurable : true })
   }
 })
 
@@ -246,17 +246,7 @@ const requiredItemConfig = ['itemClass', 'itemName', 'keyField', 'itemsName']
 /**
 * Creates a frozen 'itemConfig' and immutably binds it to the Item sub-class.
 *
-* #### Parameters
-*
-* - `itemClass`: The class used to create new items. This is also where the class `itemConfig' is bound.
-* - `itemName`: The name by which to refer items.
-* - `keyField`: The key field used as or to generate an ID.
-* - `itemsName`: The name by which to refer to the multple items.
-* - `dataFlattener`: (opt) A function which flattens nested data. E.g., when outputting data in a CSV (tabular) format.
-* - `dataCleaner`: (opt) A function which removes or otherwise transforms data in preparation for display or export.
-*      E.g., to remove cached or ephemeral values.
-* - `idNormalizer`: (opt) A function used to normalize the key field when creating implied IDs. Will default to the
-*     `defaultIdNormalizer` if not specified.
+* Refer to README.md 'Reference' section for details.
 */
 Item.bindCreationConfig = (itemConfig = {}) => { // TODO: just take itemConfig as part of the constructor
   // verify required items
