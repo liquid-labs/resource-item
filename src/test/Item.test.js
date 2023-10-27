@@ -184,4 +184,76 @@ describe('Item', () => {
 
     test('can call sub-sublass functions', () => expect(subSubItem.subSubFunc()).toBe('subsubfunc'))
   })
+
+  describe('getWatchers', () => {
+    let accessCount = 0
+
+    const Watched = class extends Item {}
+
+    Item.bindCreationConfig({
+      itemClass : Watched,
+      itemName  : 'watched',
+      itemsName : 'watched',
+      keyField  : 'id',
+      getWatchers: [({ key }) => {
+        if (key === 'foo') {
+          throw new Error('Access denied')
+        }
+        accessCount += 1
+      }],
+    })
+
+    let item
+    beforeAll(() => { item = new Watched({ id: 'watched1', foo: 'bar' }) })
+
+    test('are invoked on any get operation', () => {
+      // because of internals, some fields are accessed after construction, but before return (internal logging?) so we 
+      // have to grab the initalAccess count and go from there
+      const initialAccess = accessCount
+      expect(item.id).toBe('watched1')
+      expect(accessCount).toBe(initialAccess + 1)
+    })
+
+    test('can cancel actions by throwing an error', () => {
+      expect(() => item.foo).toThrow(/Access denied/)
+    })
+  })
+
+  describe('setWatchers', () => {
+    let updateCount = 0
+
+    const Watched = class extends Item {}
+
+    Item.bindCreationConfig({
+      itemClass : Watched,
+      allowSet  : ['foo'],
+      itemName  : 'watched',
+      itemsName : 'watched',
+      keyField  : 'id',
+      setWatchers: [({ data, object, key, value }) => {
+        if (value === 'forbidden') {
+          throw new Error('It is forbidden')
+        }
+        const currValue = data[key]
+        if (currValue !== value) {
+          updateCount += 1
+        }
+      }]
+    })
+
+    let item
+    beforeAll(() => { item = new Watched({ id: 'watched1', foo: 'bar' }) })
+
+    test('are invoked on any set operation', () => {
+      expect(updateCount).toBe(0)
+      item.foo = 'bar'
+      expect(updateCount).toBe(0)
+      item.foo = 'baz'
+      expect(updateCount).toBe(1)
+    })
+
+    test('can cancel actions by throwing an error', () => {
+      expect(() => { item.foo = 'forbidden' }).toThrow(/It is forbidden/)
+    })
+  })
 })

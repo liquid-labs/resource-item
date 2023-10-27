@@ -93,8 +93,12 @@ const indexAllProperties = (obj) => {
   return [propIndex, methodIndex]
 }
 
-const handler = ({ allowSet, data, propIndex, methodIndex }) => ({
+const handler = ({ allowSet, data, getWatchers, propIndex, methodIndex, setWatchers }) => ({
   get : (object, key, receiver) => {
+    for (const getWatcher of getWatchers) {
+      getWatcher({ data, object, key, receiver })
+    }
+
     if (key === 'isProxy') return true
     // object method calls go through the get handler first to retrieve the function itself
     // TODO: the 'private' thing is a workaround for a Babel bug (?) that messes up private calls **I wonder if the
@@ -129,6 +133,10 @@ const handler = ({ allowSet, data, propIndex, methodIndex }) => ({
     }
   },
   set : (object, key, value) => {
+    for (const setWatcher of setWatchers) {
+      setWatcher({ data, object, key, value })
+    }
+
     // propIndex of object (not data) are allowed to be set
     if (propIndex[key] || key.match(/private/)) {
       object[key] = value
@@ -189,9 +197,11 @@ const Item = class {
     const [propIndex, methodIndex] = indexAllProperties(this)
     const proxy = new Proxy(this, handler({
       data     : this.#data,
-      propIndex,
+      allowSet : this.allowSet,
+      getWatchers : this.constructor.itemConfig.getWatchers || [],
       methodIndex,
-      allowSet : this.allowSet
+      propIndex,
+      setWatchers : this.constructor.itemConfig.setWatchers || [],
     }))
 
     // since we return the proxy, we save the real underlying object internally
@@ -226,13 +236,13 @@ const Item = class {
 
   get itemName() { return this.constructor.itemConfig.itemName }
 
+  get itemsName() { return this.constructor.itemConfig.itemsName }
+
   /**
   * Our 'keyField'. We will always annotate incoming objcts with 'id', but the ItemManager may use another field for
   * it's canonical ID.
   */
   get keyField() { return this.constructor.itemConfig.keyField }
-
-  get itemsName() { return this.constructor.itemConfig.itemsName }
 }
 
 const requiredItemConfig = ['itemClass', 'itemName', 'keyField', 'itemsName']
