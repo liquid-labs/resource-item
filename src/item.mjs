@@ -104,12 +104,13 @@ const handler = ({ allowSet, data, getWatchers, propIndex, methodIndex, setWatch
     // TODO: the 'private' thing is a workaround for a Babel bug (?) that messes up private calls **I wonder if the
     // new catalyst-scripts-node-project fixes this? Since we don't bother to target ancient platforms
     else if (methodIndex[key] || propIndex[key] || key.match?.(/private/)) {
-      try { // TODO: see note on catch below
-        return receiver
-          ? Reflect.get(object, key, receiver)
-          : Reflect.get(object, key)
-      }
-      catch (e) {
+      return receiver
+        ? Reflect.get(object, key, receiver)
+        : Reflect.get(object, key)
+      /* At one point this code was necessary. perhpas of the way Babel was transpiling the code. It seems to work 
+         without needing this bit now, though. We preserve it in case the bug popss up again
+
+       catch (e) {
         // So, it's not clear to me what's happening. We seem to be able to access private fields in the first instance,
         // but at some point in the function chain, it breaks down. But, the workaround is pretty simple, we just go to
         // the underlying object directly.
@@ -117,13 +118,13 @@ const handler = ({ allowSet, data, getWatchers, propIndex, methodIndex, setWatch
           /* Needs further testing, but I believe trying to use the reciever was causing 'TypeErrors'.
           return receiver
             ? Reflect.get(thisMapper[object].deref(), key, receiver)
-            : Reflect.get(thisMapper[object].deref(), key) */
+            : Reflect.get(thisMapper[object].deref(), key) * /
           return Reflect.get(thisMapper[object], key)
         }
         else {
           throw e
         }
-      }
+      }*/
     }
     else {
       const value = data[key]
@@ -180,10 +181,6 @@ const Item = class {
       throw new Error("'Item's cannot be created directly. You must create a sub-class and configure it via 'Item.bindCreationConfig'.")
     }
 
-    if (this.keyField === undefined) {
-      throw new Error('Key field must be specified. '
-        + "Note, 'Item' is not typically created directly. Create a subclass or specify 'options.keyField' directly.")
-    }
     this.#data = data
 
     if (!data[this.keyField]) {
