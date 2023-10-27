@@ -1,6 +1,6 @@
 /* globals beforeAll describe expect test */
 
-import { Item } from '../Item'
+import { Item } from '../item'
 
 const VAL_STRING = 'a string'
 const VAL_INTEGER = 1
