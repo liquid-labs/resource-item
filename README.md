@@ -47,7 +47,7 @@ The `Item` class is conceived of as the standard basis for a CRUD system dealing
 
 ## Reference
 
-constructor/`new` `Item`s:
+constructor/`new` `Item`s:\
 `Item`s cannot be instantiated directly and must be sub-classed. Instantiating the subclass will result in the return of a `Proxy` object that wraps the underlying class. The proxy instance behaves just as the underlying class would in all cases except as noted in this documentation.
 
 All 'get' operations:\
