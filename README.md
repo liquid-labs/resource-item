@@ -3,6 +3,8 @@
 
 Provides configurable 'Item' class to wrap plain data object for data protection and sanitization. This is useful when you have a bunch of plain data objects and you don't want to write specific classes for each type, but you do want to protect and/or sanitize the data.
 
+'resource-item' can be used on it's own, but also works with ['resource-model'](https://github.com/liquid-labs/resource-model] which defines `ItemManager` to manage a collection of `Item`s and `Model` which can be used to group and coordinate multiple `ItemManager`s or sub-`Model`s. Together, these projects provide a complete resource management infrastructure.
+
 ## Installation
 
 ```bash
