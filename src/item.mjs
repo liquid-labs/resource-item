@@ -107,7 +107,7 @@ const handler = ({ allowSet, data, getWatchers, propIndex, methodIndex, setWatch
       return receiver
         ? Reflect.get(target, property, receiver)
         : Reflect.get(target, property)
-      /* At one point this code was necessary. perhpas of the way Babel was transpiling the code. It seems to work 
+      /* At one point this code was necessary. perhpas of the way Babel was transpiling the code. It seems to work
          without needing this bit now, though. We preserve it in case the bug popss up again
 
        catch (e) {
@@ -124,7 +124,7 @@ const handler = ({ allowSet, data, getWatchers, propIndex, methodIndex, setWatch
         else {
           throw e
         }
-      }*/
+      } */
     }
     else {
       const value = data[property]
@@ -193,12 +193,12 @@ const Item = class {
 
     const [propIndex, methodIndex] = indexAllProperties(this)
     const proxy = new Proxy(this, handler({
-      data     : this.#data,
-      allowSet : this.allowSet,
+      data        : this.#data,
+      allowSet    : this.allowSet,
       getWatchers : this.constructor.itemConfig.getWatchers || [],
       methodIndex,
       propIndex,
-      setWatchers : this.constructor.itemConfig.setWatchers || [],
+      setWatchers : this.constructor.itemConfig.setWatchers || []
     }))
 
     // since we return the proxy, we save the real underlying object internally

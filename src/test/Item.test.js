@@ -1,4 +1,4 @@
-/* globals describe expect test */
+/* globals beforeAll describe expect test */
 
 import { Item } from '../Item'
 
@@ -72,9 +72,9 @@ describe('Item', () => {
   test("Trying to define an item without a specified 'keyField' results in a error", () => {
     const Foo = class extends Item {}
 
-    expect(() => 
+    expect(() =>
       Item.bindCreationConfig({
-        itemClass : SetFoo,
+        itemClass : Foo,
         itemName  : 'foo',
         itemsName : 'foos',
         allowSet  : ['foo']
@@ -207,23 +207,23 @@ describe('Item', () => {
     const Watched = class extends Item {}
 
     Item.bindCreationConfig({
-      itemClass : Watched,
-      itemName  : 'watched',
-      itemsName : 'watched',
-      keyField  : 'id',
-      getWatchers: [({ property }) => {
+      itemClass   : Watched,
+      itemName    : 'watched',
+      itemsName   : 'watched',
+      keyField    : 'id',
+      getWatchers : [({ property }) => {
         if (property === 'foo') {
           throw new Error('Access denied')
         }
         accessCount += 1
-      }],
+      }]
     })
 
     let item
-    beforeAll(() => { item = new Watched({ id: 'watched1', foo: 'bar' }) })
+    beforeAll(() => { item = new Watched({ id : 'watched1', foo : 'bar' }) })
 
     test('are invoked on any get operation', () => {
-      // because of internals, some fields are accessed after construction, but before return (internal logging?) so we 
+      // because of internals, some fields are accessed after construction, but before return (internal logging?) so we
       // have to grab the initalAccess count and go from there
       const initialAccess = accessCount
       expect(item.id).toBe('watched1')
@@ -241,12 +241,12 @@ describe('Item', () => {
     const Watched = class extends Item {}
 
     Item.bindCreationConfig({
-      itemClass : Watched,
-      allowSet  : ['foo'],
-      itemName  : 'watched',
-      itemsName : 'watched',
-      keyField  : 'id',
-      setWatchers: [({ data, object, property, value }) => {
+      itemClass   : Watched,
+      allowSet    : ['foo'],
+      itemName    : 'watched',
+      itemsName   : 'watched',
+      keyField    : 'id',
+      setWatchers : [({ data, object, property, value }) => {
         if (value === 'forbidden') {
           throw new Error('It is forbidden')
         }
@@ -258,7 +258,7 @@ describe('Item', () => {
     })
 
     let item
-    beforeAll(() => { item = new Watched({ id: 'watched1', foo: 'bar' }) })
+    beforeAll(() => { item = new Watched({ id : 'watched1', foo : 'bar' }) })
 
     test('are invoked on any set operation', () => {
       expect(updateCount).toBe(0)
