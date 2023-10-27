@@ -1,10 +1,18 @@
 {
   "name": "@liquid-labs/resource-item",
   "version": "1.0.0-alpha.0",
-  "description": "",
+  "description": "Provides configurable 'Item' class to wrap plain data object for data protection and sanitization.",
   "main": "dist/@liquid-labs/resource-item.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "make",
+    "lint": "make lint",
+    "lint:fix": "make lint-fix",
+    "test": "make test",
+    "preversion": "npm test && make lint",
+    "qa": "make qa"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "keywords": [],
   "author": "Zane Rockenbaugh <zane@liquid-labs.com>",
@@ -13,5 +21,10 @@
   "bugs": {
     "url": "https://github.com/liquid-labs/resource-item/issues"
   },
-  "homepage": "https://github.com/liquid-labs/resource-item#readme"
+  "homepage": "https://github.com/liquid-labs/resource-item#readme",
+  "devDependencies": {
+    "@liquid-labs/catalyst-resource-babel-and-rollup": "^1.0.0-alpha.3",
+    "@liquid-labs/catalyst-resource-eslint": "^1.0.0-alpha.1",
+    "@liquid-labs/catalyst-resource-jest": "^1.0.0-alpha.4"
+  }
 }
