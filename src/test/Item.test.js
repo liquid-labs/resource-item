@@ -65,6 +65,26 @@ Item.bindCreationConfig(Object.assign({},
   }))
 
 describe('Item', () => {
+  test("Trying to create an Item directl ('new Item(data)') raises an exception", () => {
+    expect(() => new Item(data)).toThrow('cannot be created directly')
+  })
+
+  test("Trying to define an item without a specified 'keyField' results in a error", () => {
+    const Foo = class extends Item {}
+
+    expect(() => 
+      Item.bindCreationConfig({
+        itemClass : SetFoo,
+        itemName  : 'foo',
+        itemsName : 'foos',
+        allowSet  : ['foo']
+      })).toThrow(/missing required field.+keyField/)
+  })
+
+  test('creating an item instance without a "truthy" keyField value results in an error', () => {
+    expect(() => new SubItem({})).toThrow(/Key field/)
+  })
+
   // collection of common tests check access from class and subclass instances
   const basicAccessTests = (target, targetProto) => {
     describe('constructor', () => {
@@ -149,10 +169,6 @@ describe('Item', () => {
       test('works with indirect private access', () => expect(foo.anotherBar).toBe('bar'))
     })
   } // end 'basicAcessTests' test builder
-
-  test("Trying to create an Item directl ('new Item(data)') raises an exception", () => {
-    expect(() => new Item(data)).toThrow('cannot be created directly')
-  })
 
   describe('subclasses', () => {
     const subItem = new SubItem(data)
