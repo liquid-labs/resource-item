@@ -188,7 +188,7 @@ const Item = class {
     }
 
     if (data.id === undefined) {
-      data.id = this.idNormalizer(data[this.keyField])
+      data.id = this.idNormalizer(data[this.keyField], structuredClone(data))
     }
 
     const [propIndex, methodIndex] = indexAllProperties(this)
@@ -206,8 +206,6 @@ const Item = class {
 
     return proxy // Note, this overrides the default + implicit 'return this'
   } // end constructor
-
-  // get id() { return this.#data.id || this.#idNormalizer(this.#data[this.#keyField]) }
 
   get allowSet() { return structuredClone(this.constructor.itemConfig.allowSet) }
 
